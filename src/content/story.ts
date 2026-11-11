@@ -1,9 +1,12 @@
+import cubeStill from "@/assets/garage-cube.jpg";
+
 /**
  * The script of "The Memory Cube".
  *
  * To add a finished clip: drop the video in, then set `video` on its scene
  * (and optionally `poster`). Scenes without a `video` show a styled placeholder
- * with the scene direction, so the story reads end-to-end before clips exist.
+ * with the scene direction, so the story plays end-to-end before clips exist.
+ * The story is a click-through player: Space / Enter / click moves to the next step.
  */
 
 export type Line = { speaker: "Girl" | "Mom" | "Narrator" | "InSight"; text: string };
@@ -67,6 +70,7 @@ export const story: Scene[] = [
     direction:
       "Behind a box she finds a small metal cube with a single glowing button. She presses it. Light pours out and a hologram opens above the cube. She sets it down and watches.",
     lines: [],
+    poster: cubeStill,
   },
   {
     kind: "video",
@@ -137,7 +141,7 @@ export const story: Scene[] = [
     eyebrow: "The archive",
     title: "Abandoned, but not forgotten",
     intro:
-      "Each page is one machine we left on the Moon or Mars, put together from official NASA sources. Turn the pages the way she did.",
+      "One page for each machine we left on the Moon and Mars, put together from official NASA sources.",
   },
   {
     kind: "video",

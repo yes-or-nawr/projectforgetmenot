@@ -1,22 +1,27 @@
-import { useEffect, useRef, useState } from "react";
-import { Pause, Play, RotateCcw, Film } from "lucide-react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { RotateCcw, Film } from "lucide-react";
 import type { VideoScene } from "@/content/story";
 import { artifacts } from "@/content/artifacts";
-import { useStory } from "./story-context";
 import { HologramFrame } from "./HologramFrame";
 
 const insight = artifacts.find((a) => a.id === "insight")!;
 
-export function SceneVideo({ scene, onEnded }: { scene: VideoScene; onEnded?: () => void }) {
+/** Width that keeps a 16:9 frame plus its captions inside the viewport. */
+function frameWidth(scene: VideoScene): CSSProperties {
+  const reserve = 11 + (scene.hologram ? 8 : 0) + scene.lines.length * 3.6;
+  return { width: `min(92vw, calc((100dvh - ${reserve}rem) * 16 / 9))` };
+}
+
+export function SceneVideo({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }) {
   const media = scene.video ? (
-    <ScenePlayer scene={scene} onEnded={onEnded} />
+    <ScenePlayer scene={scene} soundOn={soundOn} />
   ) : (
     <ScenePlaceholder scene={scene} />
   );
 
   return (
-    <figure className="w-full">
-      <figcaption className="mb-3 flex items-baseline gap-3 font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground">
+    <figure className="mx-auto" style={frameWidth(scene)}>
+      <figcaption className="mb-3 flex items-baseline gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground md:text-xs">
         <span className={scene.hologram ? "text-hologram" : "text-primary"}>
           Scene {String(scene.number).padStart(2, "0")}
         </span>
@@ -26,90 +31,66 @@ export function SceneVideo({ scene, onEnded }: { scene: VideoScene; onEnded?: ()
       {scene.hologram ? (
         <HologramFrame>{media}</HologramFrame>
       ) : (
-        <div className="overflow-hidden rounded-md border border-border bg-card shadow-2xl">{media}</div>
+        <div className="overflow-hidden rounded-md bg-card shadow-[var(--shadow-frame)]">{media}</div>
       )}
-      {scene.lines.length > 0 && <Subtitles scene={scene} />}
+      {scene.lines.length > 0 && <Captions scene={scene} />}
     </figure>
   );
 }
 
-function ScenePlayer({ scene, onEnded }: { scene: VideoScene; onEnded?: (() => void) | undefined }) {
-  const { started, soundOn } = useStory();
+function ScenePlayer({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [playing, setPlaying] = useState(false);
   const [ended, setEnded] = useState(false);
 
-  // Play while most of the clip is on screen, pause when scrolled away.
+  // The scene mounts when it becomes the current step, so start playing right away.
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-    const io = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry) return;
-        if (entry.intersectionRatio >= 0.6) {
-          if (started && !v.ended) {
-            v.play().catch(() => {
-              v.muted = true;
-              v.play().catch(() => {});
-            });
-          }
-        } else {
-          v.pause();
-        }
-      },
-      { threshold: [0, 0.6] },
-    );
-    io.observe(v);
-    return () => io.disconnect();
-  }, [started]);
+    v.muted = !soundOn;
+    v.currentTime = 0;
+    v.play().catch(() => {
+      v.muted = true;
+      v.play().catch(() => {});
+    });
+    // soundOn is handled by the effect below; only restart on a new clip.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scene.video]);
 
   useEffect(() => {
     if (videoRef.current) videoRef.current.muted = !soundOn;
   }, [soundOn]);
 
-  const toggle = () => {
-    const v = videoRef.current;
-    if (!v) return;
-    if (v.ended) {
-      v.currentTime = 0;
-      void v.play();
-    } else if (v.paused) {
-      void v.play();
-    } else {
-      v.pause();
-    }
-  };
-
   return (
-    <div className="group relative aspect-video w-full bg-background">
+    <div className="relative aspect-video w-full bg-background">
       <video
         ref={videoRef}
         src={scene.video}
         poster={scene.poster}
-        muted
         playsInline
-        preload="metadata"
+        preload="auto"
         className="h-full w-full object-cover"
-        onClick={toggle}
-        onPlay={() => {
-          setPlaying(true);
-          setEnded(false);
-        }}
-        onPause={() => setPlaying(false)}
-        onEnded={() => {
-          setEnded(true);
-          onEnded?.();
-        }}
+        onPlay={() => setEnded(false)}
+        onEnded={() => setEnded(true)}
         aria-label={`Scene ${scene.number}: ${scene.title}. ${scene.direction}`}
       />
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={ended ? "Replay scene" : playing ? "Pause scene" : "Play scene"}
-        className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full border border-foreground/20 bg-background/70 text-foreground opacity-80 backdrop-blur transition hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-ring"
-      >
-        {ended ? <RotateCcw className="h-4 w-4" /> : playing ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-      </button>
+      {ended && (
+        <button
+          type="button"
+          data-no-advance
+          onClick={(e) => {
+            e.currentTarget.blur();
+            const v = videoRef.current;
+            if (v) {
+              v.currentTime = 0;
+              void v.play();
+            }
+          }}
+          aria-label="Replay scene"
+          className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full border border-foreground/20 bg-background/70 text-foreground backdrop-blur transition hover:border-primary"
+        >
+          <RotateCcw className="h-4 w-4" />
+        </button>
+      )}
     </div>
   );
 }
@@ -118,12 +99,7 @@ function ScenePlaceholder({ scene }: { scene: VideoScene }) {
   if (scene.hologram) {
     return (
       <div className="relative aspect-video w-full overflow-hidden bg-background">
-        <img
-          src={insight.image.src}
-          alt={insight.image.alt}
-          loading="lazy"
-          className="h-full w-full object-cover saturate-50"
-        />
+        <img src={insight.image.src} alt={insight.image.alt} className="h-full w-full object-cover saturate-50" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
         <dl className="absolute inset-x-4 bottom-4 grid grid-cols-2 gap-x-6 gap-y-2 font-mono text-[10px] uppercase tracking-widest text-hologram-foreground md:inset-x-8 md:bottom-6 md:grid-cols-4 md:text-xs">
           <Readout label="Landed" value="2018-11-26" />
@@ -139,12 +115,18 @@ function ScenePlaceholder({ scene }: { scene: VideoScene }) {
   }
 
   return (
-    <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-4 bg-[radial-gradient(ellipse_at_center,var(--color-secondary),var(--color-background))] px-6 text-center">
-      <Film className="h-8 w-8 text-primary/70" aria-hidden />
-      <p className="max-w-xl font-display text-xl italic leading-snug text-foreground/90 md:text-3xl">
+    <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-4 overflow-hidden bg-[radial-gradient(ellipse_at_center,var(--color-secondary),var(--color-background))] px-6 text-center">
+      {scene.poster && (
+        <>
+          <img src={scene.poster} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-background/20" />
+        </>
+      )}
+      <Film className="relative h-7 w-7 text-primary/80" aria-hidden />
+      <p className="relative max-w-xl font-display text-xl italic leading-snug text-foreground md:text-3xl">
         {scene.direction}
       </p>
-      <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground md:text-xs">
+      <p className="relative font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground md:text-xs">
         Clip coming soon
       </p>
     </div>
@@ -160,22 +142,26 @@ function Readout({ label, value }: { label: string; value: string }) {
   );
 }
 
-function Subtitles({ scene }: { scene: VideoScene }) {
+function Captions({ scene }: { scene: VideoScene }) {
   return (
-    <div className="mx-auto mt-8 max-w-3xl space-y-4">
+    <div className="mx-auto mt-5 max-w-3xl space-y-2">
       {scene.lines.map((line, i) => (
-        <p key={i} className="flex flex-col gap-1 md:flex-row md:gap-5">
+        <p
+          key={i}
+          className="rise flex flex-col gap-0.5 md:flex-row md:items-baseline md:gap-4"
+          style={{ animationDelay: `${400 + i * 500}ms` }}
+        >
           <span
-            className={`shrink-0 pt-2 font-mono text-[10px] uppercase tracking-[0.25em] md:w-20 md:text-right ${
+            className={`shrink-0 font-mono text-[10px] uppercase tracking-[0.25em] md:w-20 md:text-right ${
               line.speaker === "InSight" ? "text-hologram" : line.speaker === "Narrator" ? "text-muted-foreground" : "text-primary"
             }`}
           >
             {line.speaker}
           </span>
           <span
-            className={`font-display text-2xl leading-snug md:text-3xl ${
-              line.speaker === "Narrator" ? "text-foreground/80" : "text-foreground"
-            } ${line.speaker === "InSight" ? "italic text-hologram-foreground" : ""}`}
+            className={`font-display text-lg leading-snug md:text-xl xl:text-2xl ${
+              line.speaker === "InSight" ? "italic text-hologram-foreground" : line.speaker === "Narrator" ? "text-foreground/80" : "text-foreground"
+            }`}
           >
             {line.speaker === "Narrator" ? line.text : `“${line.text}”`}
           </span>

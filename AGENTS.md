@@ -33,4 +33,5 @@ use the editor.
 
 - Story scenes and dialogue live in `src/content/story.ts`; archive pages live in `src/content/artifacts.ts`. Components render from these files so content can change without touching layout.
 - A video scene without a `video` value renders a placeholder, so the story stays watchable while clips are still being made.
+- The site is a single full-screen player (`StoryPlayer`), not a scrolling website: one step at a time, advanced by Space/Enter/click, with no site header or extra pages. The flipbook exposes next/prev so the same inputs turn its pages.
 - Archive facts must cite official NASA sources (nasa.gov hosts) and use NASA image library photos; `src/test/archive-sources.test.ts` enforces this.

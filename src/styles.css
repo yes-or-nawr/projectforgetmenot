@@ -10,7 +10,7 @@
 
 /*
  * The Memory Cube design system.
- * Night-garage base, warm amber "dust light", cyan hologram glow, archival paper for the flipbook.
+ * Deep-space base with starlight gold, cyan hologram glow, and archival paper for the flipbook.
  */
 
 @theme inline {
@@ -71,38 +71,38 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.13 0.012 60);
-  --foreground: oklch(0.94 0.02 80);
-  --card: oklch(0.18 0.014 60);
-  --card-foreground: oklch(0.94 0.02 80);
-  --popover: oklch(0.18 0.014 60);
-  --popover-foreground: oklch(0.94 0.02 80);
-  --primary: oklch(0.8 0.13 72);
-  --primary-foreground: oklch(0.17 0.02 60);
-  --secondary: oklch(0.23 0.015 60);
-  --secondary-foreground: oklch(0.94 0.02 80);
-  --muted: oklch(0.22 0.012 60);
-  --muted-foreground: oklch(0.7 0.025 75);
+  --background: oklch(0.11 0.03 262);
+  --foreground: oklch(0.95 0.015 250);
+  --card: oklch(0.16 0.035 262);
+  --card-foreground: oklch(0.95 0.015 250);
+  --popover: oklch(0.16 0.035 262);
+  --popover-foreground: oklch(0.95 0.015 250);
+  --primary: oklch(0.84 0.12 78);
+  --primary-foreground: oklch(0.16 0.03 262);
+  --secondary: oklch(0.22 0.035 262);
+  --secondary-foreground: oklch(0.95 0.015 250);
+  --muted: oklch(0.2 0.03 262);
+  --muted-foreground: oklch(0.72 0.03 255);
   --accent: oklch(0.86 0.12 200);
   --accent-foreground: oklch(0.15 0.03 220);
   --destructive: oklch(0.65 0.2 27);
   --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.94 0.02 80 / 12%);
-  --input: oklch(0.94 0.02 80 / 16%);
-  --ring: oklch(0.8 0.13 72);
-  --chart-1: oklch(0.8 0.13 72);
+  --border: oklch(0.95 0.015 250 / 12%);
+  --input: oklch(0.95 0.015 250 / 16%);
+  --ring: oklch(0.84 0.12 78);
+  --chart-1: oklch(0.84 0.12 78);
   --chart-2: oklch(0.86 0.12 200);
   --chart-3: oklch(0.62 0.15 40);
-  --chart-4: oklch(0.75 0.02 260);
+  --chart-4: oklch(0.78 0.015 260);
   --chart-5: oklch(0.7 0.1 140);
-  --sidebar: oklch(0.16 0.012 60);
-  --sidebar-foreground: oklch(0.94 0.02 80);
-  --sidebar-primary: oklch(0.8 0.13 72);
-  --sidebar-primary-foreground: oklch(0.17 0.02 60);
-  --sidebar-accent: oklch(0.23 0.015 60);
-  --sidebar-accent-foreground: oklch(0.94 0.02 80);
-  --sidebar-border: oklch(0.94 0.02 80 / 12%);
-  --sidebar-ring: oklch(0.8 0.13 72);
+  --sidebar: oklch(0.14 0.03 262);
+  --sidebar-foreground: oklch(0.95 0.015 250);
+  --sidebar-primary: oklch(0.84 0.12 78);
+  --sidebar-primary-foreground: oklch(0.16 0.03 262);
+  --sidebar-accent: oklch(0.22 0.035 262);
+  --sidebar-accent-foreground: oklch(0.95 0.015 250);
+  --sidebar-border: oklch(0.95 0.015 250 / 12%);
+  --sidebar-ring: oklch(0.84 0.12 78);
 
   --hologram: oklch(0.86 0.12 200);
   --hologram-foreground: oklch(0.96 0.04 200);
@@ -111,12 +111,16 @@
   --ink: oklch(0.24 0.025 50);
   --ink-muted: oklch(0.46 0.03 60);
   --rust: oklch(0.62 0.15 40);
-  --lunar: oklch(0.78 0.015 260);
+  --lunar: oklch(0.82 0.012 260);
+  --star: oklch(0.97 0.02 250);
 
-  --gradient-dust: radial-gradient(ellipse at 30% 0%, oklch(0.8 0.13 72 / 18%), transparent 60%);
-  --gradient-holo: linear-gradient(180deg, oklch(0.86 0.12 200 / 0%), oklch(0.86 0.12 200 / 22%));
+  --gradient-nebula:
+    radial-gradient(ellipse 60% 45% at 12% 18%, oklch(0.55 0.1 205 / 22%), transparent 70%),
+    radial-gradient(ellipse 55% 50% at 88% 85%, oklch(0.55 0.14 40 / 20%), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 60% 40%, oklch(0.45 0.12 320 / 12%), transparent 70%);
   --shadow-holo: 0 0 40px oklch(0.86 0.12 200 / 35%), 0 0 120px oklch(0.86 0.12 200 / 15%);
-  --shadow-book: 0 30px 80px -20px oklch(0 0 0 / 70%), 0 10px 30px -10px oklch(0 0 0 / 50%);
+  --shadow-book: 0 30px 80px -20px oklch(0 0 0 / 75%), 0 0 60px -10px oklch(0.86 0.12 200 / 18%);
+  --shadow-frame: 0 0 0 1px oklch(0.95 0.015 250 / 10%), 0 30px 90px -20px oklch(0 0 0 / 80%), 0 0 80px -30px oklch(0.84 0.12 78 / 35%);
 }
 
 @layer base {
@@ -124,8 +128,10 @@
     border-color: var(--color-border);
   }
 
-  html {
-    scroll-behavior: smooth;
+  html,
+  body {
+    height: 100%;
+    overflow: hidden;
   }
 
   body {
@@ -135,52 +141,6 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-  }
-}
-
-/* Fade-up reveal driven by data-visible (see Reveal component) */
-.reveal {
-  opacity: 0;
-  transform: translateY(24px);
-  transition:
-    opacity 900ms ease,
-    transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1);
-}
-.reveal[data-visible="true"] {
-  opacity: 1;
-  transform: none;
-}
-@media (prefers-reduced-motion: reduce) {
-  .reveal {
-    opacity: 1;
-    transform: none;
-    transition: none;
-  }
-}
-
-/* Floating dust particles */
-@keyframes dust-float {
-  0% {
-    transform: translate3d(0, 0, 0);
-    opacity: 0;
-  }
-  15% {
-    opacity: 0.8;
-  }
-  100% {
-    transform: translate3d(40px, -160px, 0);
-    opacity: 0;
-  }
-}
-.dust-mote {
-  position: absolute;
-  border-radius: 9999px;
-  background: oklch(0.9 0.08 80 / 70%);
-  animation: dust-float linear infinite;
 }
 
 /* Hologram effects */
@@ -219,7 +179,7 @@
   filter: blur(2px);
 }
 @media (prefers-reduced-motion: reduce) {
-  .holo-screen, .holo-sweep, .dust-mote {
+  .holo-screen, .holo-sweep {
     animation: none;
   }
 }
@@ -258,4 +218,73 @@
 .page-in {
   animation: page-in 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
   transform-origin: left center;
+}
+
+/* Player: scene transitions */
+@keyframes scene-in {
+  from { opacity: 0; transform: scale(0.97); filter: blur(8px); }
+  to { opacity: 1; transform: none; filter: none; }
+}
+.scene-in { animation: scene-in 800ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.rise { animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+
+@keyframes hint-pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+.hint-pulse { animation: hint-pulse 2.4s ease-in-out infinite; }
+
+/* Floating memory cube on the title card */
+@keyframes cube-spin {
+  from { transform: rotateX(-22deg) rotateY(0deg); }
+  to { transform: rotateX(-22deg) rotateY(360deg); }
+}
+@keyframes cube-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.cube-float { animation: cube-float 6s ease-in-out infinite; }
+.cube-3d {
+  transform-style: preserve-3d;
+  animation: cube-spin 18s linear infinite;
+}
+.cube-face {
+  position: absolute;
+  inset: 0;
+  border: 1px solid oklch(0.95 0.015 250 / 25%);
+  background: linear-gradient(145deg, oklch(0.36 0.02 262), oklch(0.2 0.025 262));
+  box-shadow: inset 0 0 30px oklch(0 0 0 / 45%);
+}
+
+/* Planets */
+.planet { position: absolute; border-radius: 9999px; transition: transform 1.6s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.planet-moon {
+  background: radial-gradient(circle at 35% 30%, var(--lunar), oklch(0.45 0.01 260) 60%, oklch(0.2 0.01 260) 100%);
+  box-shadow: 0 0 60px oklch(0.82 0.012 260 / 15%);
+}
+.planet-mars {
+  background: radial-gradient(circle at 30% 30%, oklch(0.7 0.14 45), var(--rust) 45%, oklch(0.25 0.06 35) 100%);
+  box-shadow: 0 0 80px oklch(0.62 0.15 40 / 22%);
+}
+.planet-giant {
+  background: radial-gradient(circle at 35% 35%, oklch(0.85 0.08 80), oklch(0.6 0.1 65) 55%, oklch(0.25 0.04 60) 100%);
+}
+.planet-ring {
+  position: absolute;
+  left: -45%;
+  top: 38%;
+  width: 190%;
+  height: 24%;
+  border-radius: 9999px;
+  border: 2px solid oklch(0.85 0.08 80 / 55%);
+  transform: rotate(-18deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene-in, .rise, .hint-pulse, .cube-3d, .cube-float { animation: none; }
 }
