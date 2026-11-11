@@ -28,3 +28,9 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Story scenes and dialogue live in `src/content/story.ts`; archive pages live in `src/content/artifacts.ts`. Components render from these files so content can change without touching layout.
+- A video scene without a `video` value renders a placeholder, so the story stays watchable while clips are still being made.
+- Archive facts must cite official NASA sources (nasa.gov hosts) and use NASA image library photos; `src/test/archive-sources.test.ts` enforces this.
