@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { RotateCcw, Film } from "lucide-react";
 import type { VideoScene } from "@/content/story";
 import { artifacts } from "@/content/artifacts";
@@ -6,12 +6,10 @@ import { HologramFrame } from "./HologramFrame";
 
 const insight = artifacts.find((a) => a.id === "insight")!;
 
-/** Width that keeps a 16:9 frame plus its captions inside the viewport. */
-function frameWidth(scene: VideoScene): CSSProperties {
-  const reserve = 11 + (scene.hologram ? 8 : 0) + scene.lines.length * 3.6;
-  return { width: `min(92vw, calc((100dvh - ${reserve}rem) * 16 / 9))` };
-}
-
+/**
+ * A full-screen scene: the clip (or its placeholder) covers the whole
+ * viewport, with only a small scene label in the corner. No captions.
+ */
 export function SceneVideo({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }) {
   const media = scene.video ? (
     <ScenePlayer scene={scene} soundOn={soundOn} />
@@ -20,21 +18,23 @@ export function SceneVideo({ scene, soundOn }: { scene: VideoScene; soundOn: boo
   );
 
   return (
-    <figure className="mx-auto" style={frameWidth(scene)}>
-      <figcaption className="mb-3 flex items-baseline gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground md:text-xs">
+    <div className="absolute inset-0">
+      {scene.hologram ? (
+        <div className="flex h-full w-full items-center justify-center px-4 pb-20 pt-10 md:px-10">
+          <div className="w-full" style={{ width: "min(94vw, calc((100dvh - 14rem) * 16 / 9))" }}>
+            <HologramFrame>{media}</HologramFrame>
+          </div>
+        </div>
+      ) : (
+        media
+      )}
+      <p className="pointer-events-none absolute left-4 top-4 z-10 flex items-baseline gap-3 font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/70 md:left-8 md:top-6 md:text-xs">
         <span className={scene.hologram ? "text-hologram" : "text-primary"}>
           Scene {String(scene.number).padStart(2, "0")}
         </span>
-        <span className="h-px flex-1 bg-border" />
         <span>{scene.title}</span>
-      </figcaption>
-      {scene.hologram ? (
-        <HologramFrame>{media}</HologramFrame>
-      ) : (
-        <div className="overflow-hidden rounded-md bg-card shadow-[var(--shadow-frame)]">{media}</div>
-      )}
-      {scene.lines.length > 0 && <Captions scene={scene} />}
-    </figure>
+      </p>
+    </div>
   );
 }
 
@@ -61,7 +61,7 @@ function ScenePlayer({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }
   }, [soundOn]);
 
   return (
-    <div className="relative aspect-video w-full bg-background">
+    <div className="relative h-full w-full bg-background">
       <video
         ref={videoRef}
         src={scene.video}
@@ -86,7 +86,7 @@ function ScenePlayer({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }
             }
           }}
           aria-label="Replay scene"
-          className="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full border border-foreground/20 bg-background/70 text-foreground backdrop-blur transition hover:border-primary"
+          className="absolute bottom-16 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-foreground/20 bg-background/70 text-foreground backdrop-blur transition hover:border-primary md:bottom-6 md:right-8"
         >
           <RotateCcw className="h-4 w-4" />
         </button>
@@ -115,7 +115,7 @@ function ScenePlaceholder({ scene }: { scene: VideoScene }) {
   }
 
   return (
-    <div className="relative flex aspect-video w-full flex-col items-center justify-center gap-4 overflow-hidden bg-[radial-gradient(ellipse_at_center,var(--color-secondary),var(--color-background))] px-6 text-center">
+    <div className="relative flex h-full w-full flex-col items-center justify-center gap-4 overflow-hidden bg-[radial-gradient(ellipse_at_center,var(--color-secondary),var(--color-background))] px-6 text-center">
       {scene.poster && (
         <>
           <img src={scene.poster} alt="" className="absolute inset-0 h-full w-full object-cover opacity-45" />
@@ -138,35 +138,6 @@ function Readout({ label, value }: { label: string; value: string }) {
     <div>
       <dt className="text-hologram/70">{label}</dt>
       <dd className="text-sm md:text-base">{value}</dd>
-    </div>
-  );
-}
-
-function Captions({ scene }: { scene: VideoScene }) {
-  return (
-    <div className="mx-auto mt-5 max-w-3xl space-y-2">
-      {scene.lines.map((line, i) => (
-        <p
-          key={i}
-          className="rise flex flex-col gap-0.5 md:flex-row md:items-baseline md:gap-4"
-          style={{ animationDelay: `${400 + i * 500}ms` }}
-        >
-          <span
-            className={`shrink-0 font-mono text-[10px] uppercase tracking-[0.25em] md:w-20 md:text-right ${
-              line.speaker === "InSight" ? "text-hologram" : line.speaker === "Narrator" ? "text-muted-foreground" : "text-primary"
-            }`}
-          >
-            {line.speaker}
-          </span>
-          <span
-            className={`font-display text-lg leading-snug md:text-xl xl:text-2xl ${
-              line.speaker === "InSight" ? "italic text-hologram-foreground" : line.speaker === "Narrator" ? "text-foreground/80" : "text-foreground"
-            }`}
-          >
-            {line.speaker === "Narrator" ? line.text : `“${line.text}”`}
-          </span>
-        </p>
-      ))}
     </div>
   );
 }

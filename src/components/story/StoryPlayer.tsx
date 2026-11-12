@@ -66,8 +66,14 @@ export function StoryPlayer() {
       <Starfield warp={index} />
       <Planets step={index} dim={step.kind !== "intro"} />
 
-      <main className="relative z-10 flex h-full w-full items-center justify-center px-4 pb-16 pt-8 md:px-8">
-        <div key={index} className="scene-in flex w-full justify-center">
+      <main
+        className={
+          step.kind === "video"
+            ? "absolute inset-0 z-10"
+            : "relative z-10 flex h-full w-full items-center justify-center px-4 pb-16 pt-8 md:px-8"
+        }
+      >
+        <div key={index} className={`scene-in flex w-full justify-center ${step.kind === "video" ? "h-full" : ""}`}>
           <StepView step={step} soundOn={soundOn} bookRef={bookRef} />
         </div>
       </main>
