@@ -38,6 +38,44 @@ export function SceneVideo({ scene, soundOn }: { scene: VideoScene; soundOn: boo
   );
 }
 
+/**
+ * The final frame of a scene, frozen, so a text card can appear over it.
+ * Uses the same framing as the playing scene so the cut is seamless.
+ */
+export function LastFrame({ scene }: { scene: VideoScene }) {
+  const media = scene.video ? <FrozenEnd scene={scene} /> : <ScenePlaceholder scene={scene} still />;
+  return (
+    <div aria-hidden className="absolute inset-0">
+      {scene.hologram ? (
+        <div className="flex h-full w-full items-center justify-center px-4 pb-20 pt-10 md:px-10">
+          <div className="w-full" style={{ width: "min(94vw, calc((100dvh - 14rem) * 16 / 9))" }}>
+            <HologramFrame>{media}</HologramFrame>
+          </div>
+        </div>
+      ) : (
+        media
+      )}
+    </div>
+  );
+}
+
+function FrozenEnd({ scene }: { scene: VideoScene }) {
+  return (
+    <video
+      src={scene.video}
+      poster={scene.poster}
+      muted
+      playsInline
+      preload="auto"
+      className="h-full w-full bg-background object-cover"
+      onLoadedMetadata={(e) => {
+        const v = e.currentTarget;
+        if (Number.isFinite(v.duration)) v.currentTime = Math.max(0, v.duration - 0.05);
+      }}
+    />
+  );
+}
+
 function ScenePlayer({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [ended, setEnded] = useState(false);
@@ -95,7 +133,7 @@ function ScenePlayer({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }
   );
 }
 
-function ScenePlaceholder({ scene }: { scene: VideoScene }) {
+function ScenePlaceholder({ scene, still }: { scene: VideoScene; still?: boolean }) {
   if (scene.hologram) {
     return (
       <div className="relative aspect-video w-full overflow-hidden bg-background">
@@ -122,13 +160,17 @@ function ScenePlaceholder({ scene }: { scene: VideoScene }) {
           <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-background/20" />
         </>
       )}
-      <Film className="relative h-7 w-7 text-primary/80" aria-hidden />
-      <p className="relative max-w-xl font-display text-xl italic leading-snug text-foreground md:text-3xl">
-        {scene.direction}
-      </p>
-      <p className="relative font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground md:text-xs">
-        Clip coming soon
-      </p>
+      {!still && (
+        <>
+          <Film className="relative h-7 w-7 text-primary/80" aria-hidden />
+          <p className="relative max-w-xl font-display text-xl italic leading-snug text-foreground md:text-3xl">
+            {scene.direction}
+          </p>
+          <p className="relative font-mono text-[10px] uppercase tracking-[0.25em] text-muted-foreground md:text-xs">
+            Clip coming soon
+          </p>
+        </>
+      )}
     </div>
   );
 }

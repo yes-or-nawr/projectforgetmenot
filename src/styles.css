@@ -114,9 +114,23 @@
   --lunar: oklch(0.82 0.012 260);
   --star: oklch(0.97 0.02 250);
 
+  /* 360° title sky — "L C H" triples so the canvas can add its own alpha */
+  --space-star: 0.97 0.02 250;
+  --space-star-warm: 0.9 0.06 80;
+  --space-star-cool: 0.88 0.07 220;
+  --space-band: 0.8 0.03 250;
+  --space-moon: 0.82 0.012 260;
+  --space-earth: 0.62 0.13 235;
+  --space-earth-land: 0.7 0.1 150;
+  --space-giant: 0.85 0.08 80;
+  --space-sun: 0.97 0.05 90;
+  --space-nebula-1: 0.55 0.12 205;
+  --space-nebula-2: 0.5 0.15 300;
+  --space-nebula-3: 0.55 0.1 250;
+
   --gradient-nebula:
     radial-gradient(ellipse 60% 45% at 12% 18%, oklch(0.55 0.1 205 / 22%), transparent 70%),
-    radial-gradient(ellipse 55% 50% at 88% 85%, oklch(0.55 0.14 40 / 20%), transparent 70%),
+    radial-gradient(ellipse 55% 50% at 88% 85%, oklch(0.45 0.13 290 / 18%), transparent 70%),
     radial-gradient(ellipse 50% 40% at 60% 40%, oklch(0.45 0.12 320 / 12%), transparent 70%);
   --shadow-holo: 0 0 40px oklch(0.86 0.12 200 / 35%), 0 0 120px oklch(0.86 0.12 200 / 15%);
   --shadow-book: 0 30px 80px -20px oklch(0 0 0 / 75%), 0 0 60px -10px oklch(0.86 0.12 200 / 18%);
@@ -266,10 +280,6 @@
 .planet-moon {
   background: radial-gradient(circle at 35% 30%, var(--lunar), oklch(0.45 0.01 260) 60%, oklch(0.2 0.01 260) 100%);
   box-shadow: 0 0 60px oklch(0.82 0.012 260 / 15%);
-}
-.planet-mars {
-  background: radial-gradient(circle at 30% 30%, oklch(0.7 0.14 45), var(--rust) 45%, oklch(0.25 0.06 35) 100%);
-  box-shadow: 0 0 80px oklch(0.62 0.15 40 / 22%);
 }
 .planet-giant {
   background: radial-gradient(circle at 35% 35%, oklch(0.85 0.08 80), oklch(0.6 0.1 65) 55%, oklch(0.25 0.04 60) 100%);

@@ -1,16 +1,27 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, Volume2, VolumeX } from "lucide-react";
-import { story, endingNotes, type Scene, type TextScene, type FlipbookScene } from "@/content/story";
+import { story, endingNotes, type Scene, type TextScene, type FlipbookScene, type VideoScene } from "@/content/story";
 import { artifacts } from "@/content/artifacts";
 import { Starfield } from "@/components/space/Starfield";
 import { Planets } from "@/components/space/Planets";
 import { MemoryCube } from "@/components/space/MemoryCube";
+import { SpaceSphere } from "@/components/space/SpaceSphere";
 import { Flipbook, type FlipbookHandle } from "@/components/flipbook/Flipbook";
-import { SceneVideo } from "./SceneVideo";
+import { SceneVideo, LastFrame } from "./SceneVideo";
 
 type Step = { kind: "intro" } | Scene | { kind: "ending" } | { kind: "credits" };
 
 export const steps: Step[] = [{ kind: "intro" }, ...story, { kind: "ending" }, { kind: "credits" }];
+
+/** The video just before a text card: the card is shown over its final frame. */
+function previousVideo(i: number): VideoScene | undefined {
+  for (let k = i - 1; k >= 0; k--) {
+    const s = steps[k];
+    if (s?.kind === "video") return s;
+    if (s?.kind !== "text") return undefined;
+  }
+  return undefined;
+}
 
 const FORWARD_KEYS = [" ", "Enter", "ArrowRight", "PageDown"];
 const BACK_KEYS = ["ArrowLeft", "Backspace", "PageUp"];
@@ -25,6 +36,7 @@ export function StoryPlayer() {
   const [soundOn, setSoundOn] = useState(true);
   const bookRef = useRef<FlipbookHandle>(null);
   const step = steps[index] ?? steps[0]!;
+  const frozen = step.kind === "text" ? previousVideo(index) : undefined;
 
   const forward = useCallback(() => {
     if (step.kind === "flipbook" && bookRef.current?.next()) return;
@@ -56,15 +68,29 @@ export function StoryPlayer() {
 
   return (
     <div
-      className="relative h-dvh w-full cursor-pointer select-none overflow-hidden bg-background"
+      className="relative h-dvh w-full cursor-pointer touch-none select-none overflow-hidden bg-background"
       onClick={(e) => {
         if ((e.target as HTMLElement).closest("[data-no-advance]")) return;
         forward();
       }}
     >
-      <div aria-hidden className="absolute inset-0 bg-[image:var(--gradient-nebula)]" />
-      <Starfield warp={index} />
-      <Planets step={index} dim={step.kind !== "intro"} />
+      {step.kind === "intro" ? (
+        <SpaceSphere />
+      ) : (
+        <>
+          <div aria-hidden className="absolute inset-0 bg-[image:var(--gradient-nebula)]" />
+          <Starfield warp={index} />
+          <Planets step={index} dim />
+        </>
+      )}
+
+      {frozen && (
+        <div className="absolute inset-0 z-[5]">
+          <LastFrame scene={frozen} />
+          <div aria-hidden className="absolute inset-0 bg-background/60" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent,var(--color-background))]" />
+        </div>
+      )}
 
       <main
         className={
@@ -142,7 +168,7 @@ function TitleCard() {
         Press Space · Enter · or click to begin
       </p>
       <p className="rise mt-3 text-xs text-muted-foreground" style={{ animationDelay: "1000ms" }}>
-        Sound on · press M to mute
+        Move your cursor, scroll or drag to look around · press M to mute
       </p>
     </div>
   );
