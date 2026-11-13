@@ -1,26 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ChevronLeft, Volume2, VolumeX } from "lucide-react";
-import { story, endingNotes, type Scene, type TextScene, type FlipbookScene, type VideoScene } from "@/content/story";
+import { story, endingNotes, ambientAudio, type Scene, type FlipbookScene, type VideoScene } from "@/content/story";
 import { artifacts } from "@/content/artifacts";
 import { Starfield } from "@/components/space/Starfield";
 import { Planets } from "@/components/space/Planets";
 import { MemoryCube } from "@/components/space/MemoryCube";
 import { SpaceSphere } from "@/components/space/SpaceSphere";
-import { Flipbook, type FlipbookHandle } from "@/components/flipbook/Flipbook";
+import { Flipbook } from "@/components/flipbook/Flipbook";
 import { SceneVideo, LastFrame } from "./SceneVideo";
+import { LetterEnvelope } from "./LetterEnvelope";
+import { Quiz } from "./Quiz";
+import type { StepHandle } from "./step-handle";
 
 type Step = { kind: "intro" } | Scene | { kind: "ending" } | { kind: "credits" };
 
 export const steps: Step[] = [{ kind: "intro" }, ...story, { kind: "ending" }, { kind: "credits" }];
 
-/** The video just before a text card: the card is shown over its final frame. */
+/** Volume of the first clip's soundtrack when it plays under later scenes. */
+const AMBIENT_VOLUME = 0.35;
+
+/** A letter appears over the frozen last frame of the clip just before it. */
 function previousVideo(i: number): VideoScene | undefined {
-  for (let k = i - 1; k >= 0; k--) {
-    const s = steps[k];
-    if (s?.kind === "video") return s;
-    if (s?.kind !== "text") return undefined;
-  }
-  return undefined;
+  const s = steps[i - 1];
+  return s?.kind === "video" ? s : undefined;
 }
 
 const FORWARD_KEYS = [" ", "Enter", "ArrowRight", "PageDown"];
@@ -28,32 +30,41 @@ const BACK_KEYS = ["ArrowLeft", "Backspace", "PageUp"];
 
 /**
  * Full-screen, one-step-at-a-time story. Space / Enter / click moves forward,
- * ← / Backspace goes back, M toggles sound. Inside the archive, the same
- * inputs turn pages until the last one.
+ * ← / Backspace goes back, M toggles sound. Letters, the archive and the quiz
+ * use the same inputs to scroll, turn pages or move between questions first.
  */
 export function StoryPlayer() {
   const [index, setIndex] = useState(0);
   const [soundOn, setSoundOn] = useState(true);
-  const bookRef = useRef<FlipbookHandle>(null);
+  const [hudAwake, setHudAwake] = useState(true);
+  const handleRef = useRef<StepHandle>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const step = steps[index] ?? steps[0]!;
-  const frozen = step.kind === "text" ? previousVideo(index) : undefined;
+  const frozen = step.kind === "letter" ? previousVideo(index) : undefined;
+  const hasHandle = step.kind === "letter" || step.kind === "flipbook" || step.kind === "quiz";
+  const fullBleed = step.kind === "video" || step.kind === "letter";
+
+  const advance = useCallback(() => setIndex((i) => (i + 1 >= steps.length ? 0 : i + 1)), []);
 
   const forward = useCallback(() => {
-    if (step.kind === "flipbook" && bookRef.current?.next()) return;
-    setIndex((i) => (i + 1 >= steps.length ? 0 : i + 1));
-  }, [step.kind]);
+    if (hasHandle && handleRef.current?.next()) return;
+    advance();
+  }, [hasHandle, advance]);
 
   const back = useCallback(() => {
-    if (step.kind === "flipbook" && bookRef.current?.prev()) return;
+    if (hasHandle && handleRef.current?.prev()) return;
     setIndex((i) => Math.max(0, i - 1));
-  }, [step.kind]);
+  }, [hasHandle]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const focused = document.activeElement as HTMLElement | null;
+      // Let a keyboard-focused button (quiz answers, page controls) work normally.
+      if ((e.key === " " || e.key === "Enter") && focused?.matches("[data-no-advance] button, [data-no-advance] a")) return;
       if (FORWARD_KEYS.includes(e.key)) {
         e.preventDefault();
-        (document.activeElement as HTMLElement | null)?.blur?.();
+        focused?.blur?.();
         if (!e.repeat) forward();
       } else if (BACK_KEYS.includes(e.key)) {
         e.preventDefault();
@@ -66,6 +77,50 @@ export function StoryPlayer() {
     return () => window.removeEventListener("keydown", onKey);
   }, [forward, back]);
 
+  // During clips the controls fade away until the pointer moves.
+  useEffect(() => {
+    let t = 0;
+    const wake = () => {
+      setHudAwake(true);
+      window.clearTimeout(t);
+      t = window.setTimeout(() => setHudAwake(false), 2200);
+    };
+    wake();
+    window.addEventListener("pointermove", wake);
+    window.addEventListener("pointerdown", wake);
+    return () => {
+      window.clearTimeout(t);
+      window.removeEventListener("pointermove", wake);
+      window.removeEventListener("pointerdown", wake);
+    };
+  }, [index]);
+
+  // The first clip's soundtrack fades in under scenes marked `ambient` and keeps
+  // looping while those scenes follow one another.
+  const ambientOn = soundOn && step.kind === "video" && !!step.ambient;
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    const target = ambientOn ? AMBIENT_VOLUME : 0;
+    if (ambientOn && a.paused) {
+      a.volume = 0;
+      a.play().catch(() => {});
+    }
+    let raf = 0;
+    const tick = () => {
+      const v = a.volume + (target - a.volume) * 0.06;
+      if (Math.abs(target - v) < 0.005) {
+        a.volume = target;
+        if (target === 0) a.pause();
+        return;
+      }
+      a.volume = v;
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [ambientOn]);
+
   return (
     <div
       className="relative h-dvh w-full cursor-pointer touch-none select-none overflow-hidden bg-background"
@@ -74,6 +129,8 @@ export function StoryPlayer() {
         forward();
       }}
     >
+      <audio ref={audioRef} src={ambientAudio} loop preload="auto" />
+
       {step.kind === "intro" ? (
         <SpaceSphere />
       ) : (
@@ -87,20 +144,20 @@ export function StoryPlayer() {
       {frozen && (
         <div className="absolute inset-0 z-[5]">
           <LastFrame scene={frozen} />
-          <div aria-hidden className="absolute inset-0 bg-background/60" />
+          <div aria-hidden className="absolute inset-0 bg-background/55" />
           <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent,var(--color-background))]" />
         </div>
       )}
 
       <main
         className={
-          step.kind === "video"
+          fullBleed
             ? "absolute inset-0 z-10"
             : "relative z-10 flex h-full w-full items-center justify-center px-4 pb-16 pt-8 md:px-8"
         }
       >
-        <div key={index} className={`scene-in flex w-full justify-center ${step.kind === "video" ? "h-full" : ""}`}>
-          <StepView step={step} soundOn={soundOn} bookRef={bookRef} />
+        <div key={index} className={`scene-in flex w-full justify-center ${fullBleed ? "h-full" : ""}`}>
+          <StepView step={step} soundOn={soundOn} handleRef={handleRef} onDone={advance} />
         </div>
       </main>
 
@@ -108,9 +165,9 @@ export function StoryPlayer() {
         <Hud
           index={index}
           soundOn={soundOn}
+          hidden={step.kind === "video" && !hudAwake}
           onBack={back}
           onToggleSound={() => setSoundOn((s) => !s)}
-          isBook={step.kind === "flipbook"}
         />
       )}
     </div>
@@ -120,21 +177,25 @@ export function StoryPlayer() {
 function StepView({
   step,
   soundOn,
-  bookRef,
+  handleRef,
+  onDone,
 }: {
   step: Step;
   soundOn: boolean;
-  bookRef: React.RefObject<FlipbookHandle | null>;
+  handleRef: React.RefObject<StepHandle | null>;
+  onDone: () => void;
 }) {
   switch (step.kind) {
     case "intro":
       return <TitleCard />;
-    case "text":
-      return <TextCard scene={step} />;
     case "video":
       return <SceneVideo scene={step} soundOn={soundOn} />;
+    case "letter":
+      return <LetterEnvelope letter={step} ref={handleRef} />;
     case "flipbook":
-      return <BookCard scene={step} bookRef={bookRef} />;
+      return <BookCard scene={step} handleRef={handleRef} />;
+    case "quiz":
+      return <Quiz quiz={step} onFinish={onDone} ref={handleRef} />;
     case "ending":
       return <EndingCard />;
     case "credits":
@@ -174,37 +235,7 @@ function TitleCard() {
   );
 }
 
-function TextCard({ scene }: { scene: TextScene }) {
-  return (
-    <div className="mx-auto max-w-3xl">
-      <p className="rise font-mono text-[11px] uppercase tracking-[0.3em] text-primary">{scene.eyebrow}</p>
-      <div className="mt-8 space-y-7">
-        {scene.paragraphs.map((p, i) => {
-          const last = i === scene.paragraphs.length - 1;
-          return (
-            <p
-              key={i}
-              className={`rise font-display leading-tight ${
-                last ? "text-4xl italic text-primary md:text-6xl" : "text-3xl text-foreground md:text-5xl"
-              }`}
-              style={{ animationDelay: `${300 + i * 900}ms` }}
-            >
-              {p}
-            </p>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-function BookCard({
-  scene,
-  bookRef,
-}: {
-  scene: FlipbookScene;
-  bookRef: React.RefObject<FlipbookHandle | null>;
-}) {
+function BookCard({ scene, handleRef }: { scene: FlipbookScene; handleRef: React.RefObject<StepHandle | null> }) {
   return (
     <div className="w-full max-w-6xl">
       <div className="rise mb-5 text-center">
@@ -213,7 +244,7 @@ function BookCard({
         <p className="mt-2 hidden text-sm text-muted-foreground md:block">{scene.intro}</p>
       </div>
       <div className="rise" style={{ animationDelay: "250ms" }}>
-        <Flipbook items={artifacts} ref={bookRef} />
+        <Flipbook items={artifacts} ref={handleRef} />
       </div>
     </div>
   );
@@ -248,8 +279,9 @@ function CreditsCard() {
         Abandoned, but not forgotten
       </h2>
       <p className="rise mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground" style={{ animationDelay: "300ms" }}>
-        Made for the 2026 NASA Space Apps Challenge. Archive facts come from official NASA mission pages, and the photos
-        come from the NASA Image and Video Library. This is not an official NASA website.
+        Made for the 2026 NASA Space Apps Challenge. Archive facts come from official NASA mission pages, the photos come
+        from the NASA Image and Video Library, and the Earth on the title screen is built from NASA Blue Marble imagery.
+        This is not an official NASA website.
       </p>
       <ul
         data-no-advance
@@ -280,20 +312,25 @@ function CreditsCard() {
 function Hud({
   index,
   soundOn,
+  hidden,
   onBack,
   onToggleSound,
-  isBook,
 }: {
   index: number;
   soundOn: boolean;
+  hidden: boolean;
   onBack: () => void;
   onToggleSound: () => void;
-  isBook: boolean;
 }) {
   const iconBtn =
     "flex h-9 w-9 items-center justify-center rounded-full border border-border bg-background/50 text-foreground/80 backdrop-blur transition hover:border-primary hover:text-primary";
   return (
-    <div data-no-advance className="absolute inset-x-0 bottom-0 z-20 flex cursor-default items-center justify-between gap-4 px-4 pb-4 md:px-6">
+    <div
+      data-no-advance
+      className={`absolute inset-x-0 bottom-0 z-20 flex cursor-default items-center justify-between gap-4 px-4 pb-4 transition-opacity duration-700 md:px-6 ${
+        hidden ? "pointer-events-none opacity-0" : "opacity-100"
+      }`}
+    >
       <button
         type="button"
         aria-label="Go back"
@@ -306,20 +343,15 @@ function Hud({
         <ChevronLeft className="h-4 w-4" />
       </button>
 
-      <div className="flex flex-col items-center gap-2">
-        <div className="flex gap-1.5" aria-label={`Step ${index} of ${steps.length - 1}`}>
-          {steps.slice(1).map((_, i) => (
-            <span
-              key={i}
-              className={`h-1 rounded-full transition-all duration-500 ${
-                i + 1 === index ? "w-6 bg-primary" : i + 1 < index ? "w-1.5 bg-foreground/50" : "w-1.5 bg-foreground/15"
-              }`}
-            />
-          ))}
-        </div>
-        <p className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground sm:block">
-          {isBook ? "Space · Enter · click to turn the page" : "Space · Enter · click to continue"}
-        </p>
+      <div className="flex gap-1.5" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length - 1} aria-valuenow={index}>
+        {steps.slice(1).map((_, i) => (
+          <span
+            key={i}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              i + 1 === index ? "w-6 bg-primary" : i + 1 < index ? "w-1.5 bg-foreground/50" : "w-1.5 bg-foreground/15"
+            }`}
+          />
+        ))}
       </div>
 
       <button
