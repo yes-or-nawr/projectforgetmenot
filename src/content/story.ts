@@ -1,4 +1,3 @@
-import ambientTrack from "@/assets/media/initial-ambient.mp3.asset.json";
 
 /**
  * The script of "The Memory Cube", in the order it plays.
@@ -18,7 +17,6 @@ export type VideoScene = {
   /** Plays inside the cube's holographic frame. */
   hologram?: boolean;
   /** Plays the soundtrack from the first clip quietly underneath. */
-  ambient?: boolean;
 };
 
 export type LetterScene = {
