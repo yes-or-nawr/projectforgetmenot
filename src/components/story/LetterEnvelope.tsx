@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import type { LetterScene } from "@/content/story";
 import type { StepHandle } from "./step-handle";
 import { personalize, usePlayerName } from "./PlayerName";
+
 /** How long the envelope takes to open before the letter unrolls. */
 const OPEN_MS = 2300;
 
@@ -14,6 +15,7 @@ const OPEN_MS = 2300;
 export function LetterEnvelope({ letter, ref }: { letter: LetterScene; ref?: Ref<StepHandle> }) {
   const [open, setOpen] = useState(false);
   const [atEnd, setAtEnd] = useState(false);
+  const [showEnvelope, setShowEnvelope] = useState(true);
   const rootRef = useRef<HTMLDivElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
 
@@ -25,6 +27,13 @@ export function LetterEnvelope({ letter, ref }: { letter: LetterScene; ref?: Ref
     const t = window.setTimeout(() => setOpen(true), OPEN_MS);
     return () => window.clearTimeout(t);
   }, []);
+
+  // Keep the envelope on screen while it fades out under the unrolling letter.
+  useEffect(() => {
+    if (!open) return;
+    const t = window.setTimeout(() => setShowEnvelope(false), 700);
+    return () => window.clearTimeout(t);
+  }, [open]);
 
   const update = useCallback(() => {
     const s = scrollerRef.current;
@@ -96,14 +105,23 @@ export function LetterEnvelope({ letter, ref }: { letter: LetterScene; ref?: Ref
       className="relative flex h-full w-full items-center justify-center px-3 pb-16 pt-6"
       style={{ "--roll": 0 } as CSSProperties}
     >
-      {!open ? (
-        <Envelope seal={letter.seal} />
-      ) : (
+      {showEnvelope && (
+        <div
+          aria-hidden={open}
+          className={`absolute inset-0 flex items-center justify-center px-3 pb-16 pt-6 transition-opacity duration-700 ${
+            open ? "opacity-0" : "opacity-100"
+          }`}
+        >
+          <Envelope seal={letter.seal} />
+        </div>
+      )}
+      {open && (
         <div
           className="letter-unfurl relative flex flex-col items-center"
           style={{ width: "min(700px, 94vw)" }}
           role="document"
           aria-label="Letter"
+          onAnimationEnd={update}
         >
           <Roller where="top" />
           <div className="parchment relative min-h-0 w-[calc(100%-1.75rem)] flex-1 overflow-hidden">
