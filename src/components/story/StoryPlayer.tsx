@@ -244,13 +244,13 @@ function TitleCard({ onStart }: { onStart: () => void }) {
         className="rise mt-12 font-display text-6xl leading-[0.9] text-foreground md:text-8xl"
         style={{ animationDelay: "400ms" }}
       >
-        Project<em className="text-primary">ForgetMeNot</em>
+        Project <em className="text-primary">ForgetMeNot</em>
       </h1>
       <p
         className="rise mt-5 max-w-md text-base leading-relaxed text-foreground/75 md:text-lg"
         style={{ animationDelay: "600ms" }}
       >
-        A 
+        
       </p>
       <NameForm onSubmit={onStart} />
       <p className="rise mt-3 text-xs text-muted-foreground" style={{ animationDelay: "1000ms" }}>
