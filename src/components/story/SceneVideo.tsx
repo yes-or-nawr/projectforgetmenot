@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import type { VideoScene } from "@/content/story";
 import { artifacts } from "@/content/artifacts";
 import { HologramFrame } from "./HologramFrame";
+import { youtubeEmbedUrl, youtubeId, youtubeThumbnail } from "@/lib/youtube";
 
 const insight = artifacts.find((a) => a.id === "insight")!;
 
@@ -10,13 +11,27 @@ const fit = "h-full w-full object-cover [@media(max-aspect-ratio:4/3)]:object-co
 
 /** A scene covering the whole screen. Nothing is written over it. */
 export function SceneVideo({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }) {
-  const media = scene.video ? <ScenePlayer scene={scene} soundOn={soundOn} /> : <ScenePlaceholder scene={scene} />;
+  const ytId = youtubeId(scene.video);
+  const media = ytId ? (
+    <YouTubePlayer id={ytId} scene={scene} soundOn={soundOn} />
+  ) : scene.video ? (
+    <ScenePlayer scene={scene} soundOn={soundOn} />
+  ) : (
+    <ScenePlaceholder scene={scene} />
+  );
   return <div className="absolute inset-0 bg-background">{scene.hologram ? <HoloStage>{media}</HoloStage> : media}</div>;
 }
 
 /** The scene's final frame, frozen, so a letter can appear over it. */
 export function LastFrame({ scene }: { scene: VideoScene }) {
-  const media = scene.video ? <FrozenEnd scene={scene} /> : <ScenePlaceholder scene={scene} />;
+  const ytId = youtubeId(scene.video);
+  const media = ytId ? (
+    <img src={youtubeThumbnail(ytId)} alt="" className={scene.hologram ? "aspect-video w-full object-cover" : fit} />
+  ) : scene.video ? (
+    <FrozenEnd scene={scene} />
+  ) : (
+    <ScenePlaceholder scene={scene} />
+  );
   return (
     <div aria-hidden className="absolute inset-0 bg-background">
       {scene.hologram ? <HoloStage>{media}</HoloStage> : media}
@@ -82,6 +97,48 @@ function ScenePlayer({ scene, soundOn }: { scene: VideoScene; soundOn: boolean }
       className={fit}
       aria-label={scene.description}
     />
+  );
+}
+
+/**
+ * A YouTube clip (for files too big to upload). Clicks pass straight through to
+ * the player so Space/Enter/click still move the story on. It starts muted so
+ * browsers allow autoplay, then follows the sound setting.
+ */
+function YouTubePlayer({ id, scene, soundOn }: { id: string; scene: VideoScene; soundOn: boolean }) {
+  const frameRef = useRef<HTMLIFrameElement>(null);
+
+  const send = (func: string, args: unknown[] = []) =>
+    frameRef.current?.contentWindow?.postMessage(JSON.stringify({ event: "command", func, args }), "*");
+
+  const applySound = () => {
+    if (soundOn) {
+      send("unMute");
+      send("setVolume", [100]);
+    } else send("mute");
+    send("playVideo");
+  };
+
+  useEffect(() => {
+    applySound();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soundOn]);
+
+  return (
+    <div className={scene.hologram ? "relative aspect-video w-full bg-background" : "relative h-full w-full bg-background"}>
+      <iframe
+        ref={frameRef}
+        src={youtubeEmbedUrl(id)}
+        title={scene.description}
+        allow="autoplay; encrypted-media; picture-in-picture"
+        tabIndex={-1}
+        className="pointer-events-none absolute inset-0 h-full w-full border-0"
+        onLoad={() => {
+          // The player needs a moment after loading before it listens.
+          [300, 1000, 2500].forEach((ms) => window.setTimeout(applySound, ms));
+        }}
+      />
+    </div>
   );
 }
 
