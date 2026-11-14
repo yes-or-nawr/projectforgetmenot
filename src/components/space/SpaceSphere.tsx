@@ -1,4 +1,6 @@
 import { useEffect, useRef } from "react";
+import earthDay from "@/assets/media/earth-day.jpg.asset.json";
+import earthClouds from "@/assets/media/earth-clouds.jpg.asset.json";
 
 /**
  * A full 360° sky for the title screen. Move the cursor to look around
@@ -43,6 +45,39 @@ export function SpaceSphere() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     if (!canvas || !ctx) return;
+    const loadImg = (src: string) => {
+      const im = new Image();
+      im.crossOrigin = "anonymous";
+      im.src = src;
+      return im;
+    };
+    const dayImg = loadImg(earthDay.url);
+    const cloudImg = loadImg(earthClouds.url);
+    const t0 = performance.now();
+    /** Orthographic globe: draw each screen column from the matching texture longitude. */
+    const off = document.createElement("canvas");
+    const offCtx = off.getContext("2d")!;
+    let ctxRef: CanvasRenderingContext2D = ctx;
+    const drawGlobe = (img: HTMLImageElement, x: number, y: number, r: number, spin: number, alpha: number) => {
+      if (!img.complete || !img.naturalWidth) return false;
+      const W = img.naturalWidth;
+      const H = img.naturalHeight;
+      const step = Math.max(1, r / 70);
+      ctxRef.globalAlpha = alpha;
+      for (let dx = -r; dx < r; dx += step) {
+        const mid = dx + step / 2;
+        const half = Math.sqrt(Math.max(0, r * r - mid * mid));
+        const lon = Math.asin(Math.max(-1, Math.min(1, mid / r)));
+        const lon2 = Math.asin(Math.max(-1, Math.min(1, (dx + step) / r)));
+        let sx = ((((spin + Math.asin(Math.max(-1, dx / r))) / TAU) % 1) + 1) % 1 * W;
+        const sw = Math.max(1, ((lon2 - Math.asin(Math.max(-1, dx / r))) / TAU) * W);
+        if (sx + sw > W) sx = W - sw;
+        void lon;
+        ctxRef.drawImage(img, sx, 0, sw, H, Math.floor(x + dx), y - half, Math.ceil(step) + 2, half * 2);
+      }
+      ctxRef.globalAlpha = 1;
+      return true;
+    };
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const css = getComputedStyle(document.documentElement);
     const tok = (name: string, fallback: string) => css.getPropertyValue(name).trim() || fallback;
@@ -213,10 +248,27 @@ export function SpaceSphere() {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, TAU);
         ctx.clip();
-        ctx.fillStyle = col(c.earthLand, 0.45);
-        for (const [ox, oy, rx, ry] of [[-0.3, -0.25, 0.32, 0.2], [0.25, 0.1, 0.22, 0.35], [-0.1, 0.45, 0.25, 0.12]] as const) {
+        const spin = ((performance.now() - t0) / 1000) * (reduce ? 0 : 0.02);
+        const drew = drawGlobe(dayImg, x, y, r, spin + 1.2, 1);
+        if (drew && cloudImg.complete && cloudImg.naturalWidth) {
+          // Clouds go through an offscreen canvas so overlapping columns don't stack alpha into stripes.
+          const size = Math.ceil(r * 2) + 4;
+          if (off.width !== size) off.width = off.height = size;
+          offCtx.clearRect(0, 0, size, size);
+          const main = ctx;
+          ctxRef = offCtx;
+          drawGlobe(cloudImg, size / 2, size / 2, r, spin * 1.25 + 1.2, 1);
+          ctxRef = main;
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = 0.7;
+          ctx.drawImage(off, x - size / 2, y - size / 2);
+          ctx.restore();
+        }
+        else {
+          ctx.fillStyle = col(c.earthLand, 0.45);
           ctx.beginPath();
-          ctx.ellipse(x + ox * r, y + oy * r, rx * r, ry * r, 0.4, 0, TAU);
+          ctx.ellipse(x - 0.3 * r, y - 0.2 * r, 0.3 * r, 0.2 * r, 0.4, 0, TAU);
           ctx.fill();
         }
         const shade = ctx.createRadialGradient(x - r * 0.35, y - r * 0.4, r * 0.3, x, y, r * 1.05);
@@ -225,6 +277,14 @@ export function SpaceSphere() {
         ctx.fillStyle = shade;
         ctx.fillRect(x - r, y - r, r * 2, r * 2);
         ctx.restore();
+        const rim = ctx.createRadialGradient(x, y, r * 0.92, x, y, r * 1.12);
+        rim.addColorStop(0, col(c.earth, 0));
+        rim.addColorStop(0.45, col(c.earth, 0.55));
+        rim.addColorStop(1, col(c.earth, 0));
+        ctx.fillStyle = rim;
+        ctx.beginPath();
+        ctx.arc(x, y, r * 1.12, 0, TAU);
+        ctx.fill();
       }
       if (b.kind === "giant") {
         ctx.strokeStyle = col(base, 0.7);
