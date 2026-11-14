@@ -236,7 +236,7 @@ function StepView({
 function TitleCard({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-col items-center text-center">
-      <p className="rise font-mono text-[11px] uppercase tracking-[0.35em] text-primary">NASA Space Apps Challenge 2026</p>
+      
       <div className="rise mt-10" style={{ animationDelay: "200ms" }}>
         <MemoryCube size={104} />
       </div>
@@ -244,13 +244,13 @@ function TitleCard({ onStart }: { onStart: () => void }) {
         className="rise mt-12 font-display text-6xl leading-[0.9] text-foreground md:text-8xl"
         style={{ animationDelay: "400ms" }}
       >
-        The Memory <em className="text-primary">Cube</em>
+        Project<em className="text-primary">ForgetMeNot</em>
       </h1>
       <p
         className="rise mt-5 max-w-md text-base leading-relaxed text-foreground/75 md:text-lg"
         style={{ animationDelay: "600ms" }}
       >
-        A story about the machines we left on the Moon, Mars and beyond, and the people who built them.
+        A 
       </p>
       <NameForm onSubmit={onStart} />
       <p className="rise mt-3 text-xs text-muted-foreground" style={{ animationDelay: "1000ms" }}>
