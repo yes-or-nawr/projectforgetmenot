@@ -1,8 +1,6 @@
-import initialClip from "@/assets/media/initial.mp4.asset.json";
-import scene2Clip from "@/assets/media/scene-2.mp4.asset.json";
-import scene3Clip from "@/assets/media/scene-3.mp4.asset.json";
-import ambientTrack from "@/assets/media/initial-ambient.mp3.asset.json";
-
+video: "/media/initial.mp4",
+video: "/media/scene-2.mp4",
+video: "/media/scene-3.mp4",
 /**
  * The script of "The Memory Cube", in the order it plays.
  * Edit the text here; the player renders whatever this file says.
