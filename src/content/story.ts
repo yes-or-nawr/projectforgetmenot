@@ -1,3 +1,4 @@
+import ambientTrack from "@/assets/media/initial-ambient.mp3.asset.json";
 
 /**
  * The script of "The Memory Cube", in the order it plays.
@@ -17,6 +18,7 @@ export type VideoScene = {
   /** Plays inside the cube's holographic frame. */
   hologram?: boolean;
   /** Plays the soundtrack from the first clip quietly underneath. */
+  ambient?: boolean;
 };
 
 export type LetterScene = {
@@ -60,6 +62,7 @@ export type QuizScene = {
 export type Scene = VideoScene | LetterScene | FlipbookScene | QuizScene;
 
 /** Soundtrack lifted from the first clip; plays under scenes marked `ambient`. */
+export const ambientAudio: string = ambientTrack.url;
 
 export const story: Scene[] = [
   {
@@ -88,6 +91,7 @@ export const story: Scene[] = [
     id: "scene-1",
     description: "...",
     video: "/media/scene-1.mp4",
+    ambient: true,
   },
   {
     kind: "video",
@@ -100,6 +104,7 @@ export const story: Scene[] = [
     id: "scene-3",
     description: "...",
     video: "/media/scene-3.mp4",
+    ambient: true,
   },
   {
     kind: "letter",
@@ -109,7 +114,7 @@ export const story: Scene[] = [
     paragraphs: [
       "If you are reading this, you have met me, Ingenuity. I flew over the Martial lands for three years, exceeding all expectations. I was Nasa's beloved Ginny.",
       "I still wake up today, logging in information to my system. Waiting. But alas! Not many people know of me today.",
-      "And it is not just me. So many of my kins are alone in the vast space, lost, injured, or dead. But what hurts the most is being forgotten."
+      "And it is not just me. So many of my kins are alone in the vast space, lost, injured, or dead. But what hurts the most is being forgotten.",
       "So, {name}, if you would, I want you to remember me. And my kins. And perhaps, one day come and meet me.",
     ],
     closing: "Waiting,",
