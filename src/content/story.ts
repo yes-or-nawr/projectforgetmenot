@@ -1,7 +1,7 @@
 
 video: "/media/initial.mp4",
-video: "/media/scene 2.mp4",
-video: "/media/scene 3.mp4",
+video: "/media/scene-2.mp4",
+video: "/media/scene-3.mp4",
 /**
  * The script of "The Memory Cube", in the order it plays.
  * Edit the text here; the player renders whatever this file says.
@@ -20,7 +20,6 @@ export type VideoScene = {
   /** Plays inside the cube's holographic frame. */
   hologram?: boolean;
   /** Plays the soundtrack from the first clip quietly underneath. */
-  ambient?: boolean;
 };
 
 export type LetterScene = {
@@ -64,14 +63,14 @@ export type QuizScene = {
 export type Scene = VideoScene | LetterScene | FlipbookScene | QuizScene;
 
 /** Soundtrack lifted from the first clip; loops under scenes marked `ambient`. */
-export const ambientAudio = ambientTrack.url;
+
 
 export const story: Scene[] = [
   {
     kind: "video",
     id: "initial",
     description: "...",
-    video: "/initial.mp4",
+    video: "/media/initial.mp4",
   },
   {
     kind: "letter",
@@ -92,7 +91,7 @@ export const story: Scene[] = [
     kind: "video",
     id: "scene-2",
     description: "...",
-    video: "/scene 2.mp4",
+    video: "/media/scene-2.mp4",
   },
   {
     kind: "video",
@@ -100,13 +99,12 @@ export const story: Scene[] = [
     description:
       "On the hologram: NASA's InSight lander on Mars. Each day, red dust settles on its solar panels, and its power fades until it can no longer talk to Earth.",
     hologram: true,
-    ambient: true,
   },
   {
     kind: "video",
-    id: "scene-2",
+    id: "scene-3",
     description: "...",
-    video: "/scene 2.mp4",
+    video: "/media/scene-3.mp4",
   },
   {
     kind: "letter",
