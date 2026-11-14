@@ -47,11 +47,11 @@ export function StoryPlayer() {
 
   const advance = useCallback(() => setIndex((i) => (i + 1 >= steps.length ? 0 : i + 1)), []);
 
-const forward = useCallback(() => {
-  if (step.kind === "intro") return; // the name form starts the story
-  if (hasHandle && handleRef.current?.next()) return;
-  advance();
-}, [hasHandle, advance, step.kind]);
+  const forward = useCallback(() => {
+    if (step.kind === "intro") return; // the name form starts the story
+    if (hasHandle && handleRef.current?.next()) return;
+    advance();
+  }, [hasHandle, advance, step.kind]);
 
   const back = useCallback(() => {
     if (hasHandle && handleRef.current?.prev()) return;
@@ -98,14 +98,26 @@ const forward = useCallback(() => {
     };
   }, [index]);
 
-  // The first clip's soundtrack fades in under scenes marked `ambient` and keeps
-  // looping while those scenes follow one another.
-  const ambientOn = soundOn && step.kind === "video" && !!step.ambient;
+  // The soundtrack plays once, from the start, under each regular video clip marked
+  // `ambient`. It never plays under the hologram scene or anywhere else, and it does not loop.
+  const ambientScene = step.kind === "video" && !!step.ambient && !step.hologram;
+  const ambientOn = soundOn && ambientScene;
+  const ambientDoneRef = useRef(false);
+
+  // Each new step starts the track over, ready for the next ambient clip.
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!a) return;
+    ambientDoneRef.current = false;
+    a.currentTime = 0;
+  }, [index]);
+
   useEffect(() => {
     const a = audioRef.current;
     if (!a) return;
     const target = ambientOn ? AMBIENT_VOLUME : 0;
-    if (ambientOn && a.paused) {
+    // `ambientDoneRef` stops it replaying if the track already finished (e.g. mute then unmute).
+    if (ambientOn && a.paused && !ambientDoneRef.current) {
       a.volume = 0;
       a.play().catch(() => {});
     }
@@ -122,7 +134,7 @@ const forward = useCallback(() => {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [ambientOn]);
+  }, [ambientOn, index]);
 
   return (
     <div
@@ -132,7 +144,14 @@ const forward = useCallback(() => {
         forward();
       }}
     >
-      <audio ref={audioRef} src={ambientAudio} loop preload="auto" />
+      <audio
+        ref={audioRef}
+        src={ambientAudio}
+        preload="auto"
+        onEnded={() => {
+          ambientDoneRef.current = true;
+        }}
+      />
 
       {step.kind === "intro" ? (
         <SpaceSphere />
@@ -206,7 +225,7 @@ function StepView({
   }
 }
 
-function TitleCard({ onStart }: { onStart: () => void })  {
+function TitleCard({ onStart }: { onStart: () => void }) {
   return (
     <div className="flex flex-col items-center text-center">
       <p className="rise font-mono text-[11px] uppercase tracking-[0.35em] text-primary">NASA Space Apps Challenge 2026</p>
