@@ -1,4 +1,3 @@
-export const ambientAudio = "";
 
 video: "/media/initial.mp4",
 video: "/media/scene 2.mp4",
