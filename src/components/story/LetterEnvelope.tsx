@@ -2,7 +2,7 @@ import { useCallback, useEffect, useImperativeHandle, useRef, useState, type CSS
 import { ChevronDown } from "lucide-react";
 import type { LetterScene } from "@/content/story";
 import type { StepHandle } from "./step-handle";
-
+import { personalize, usePlayerName } from "./PlayerName";
 /** How long the envelope takes to open before the letter unrolls. */
 const OPEN_MS = 2300;
 
@@ -131,6 +131,8 @@ export function LetterEnvelope({ letter, ref }: { letter: LetterScene; ref?: Ref
 }
 
 function LetterBody({ letter }: { letter: LetterScene }) {
+  const { name } = usePlayerName();
+  const fill = (t: string) => personalize(t, name);
   return (
     <article className="letter-frame mx-4 my-6 px-6 pb-24 pt-8 text-ink md:mx-6 md:my-8 md:px-12 md:pt-10">
       <header className="flex flex-col items-center text-center">
@@ -143,20 +145,20 @@ function LetterBody({ letter }: { letter: LetterScene }) {
         </div>
       </header>
       {letter.dateline && (
-        <p className="mt-6 text-right font-letter text-base italic text-ink-muted md:text-lg">{letter.dateline}</p>
+        <p className="mt-6 text-right font-letter text-base italic text-ink-muted md:text-lg">{fill(letter.dateline)}</p>
       )}
-      <p className="mt-6 font-letter text-2xl italic md:text-3xl">{letter.salutation}</p>
+      <p className="mt-6 font-letter text-2xl italic md:text-3xl">{fill(letter.salutation)}</p>
       <div className="mt-5 space-y-5">
         {letter.paragraphs.map((p, i) => (
           <p
             key={i}
             className={`font-letter text-xl leading-relaxed md:text-[1.45rem] ${i === 0 ? "letter-dropcap" : ""}`}
           >
-            {p}
+            {fill(p)}
           </p>
         ))}
       </div>
-      <p className="mt-10 font-letter text-xl italic md:text-2xl">{letter.closing}</p>
+      <p className="mt-10 font-letter text-xl italic md:text-2xl">{fill(letter.closing)}</p>
       <p className="mt-2 font-script text-4xl leading-tight text-ink md:text-5xl">{letter.signature}</p>
       <div className="mt-10 flex justify-end">
         <span className="wax-seal h-16 w-16 text-xl">{letter.seal}</span>
