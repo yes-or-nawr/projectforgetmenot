@@ -109,7 +109,15 @@ export function StoryPlayer() {
     const a = audioRef.current;
     if (!a) return;
     ambientDoneRef.current = false;
+    // Leaving an ambient clip for anything else cuts the track straight away.
+    // (Without this it restarts and fades out audibly under the next scene.)
+    if (!ambientScene) {
+      a.pause();
+      a.volume = 0;
+    }
     a.currentTime = 0;
+    // ambientScene only changes when the step changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index]);
 
   useEffect(() => {
