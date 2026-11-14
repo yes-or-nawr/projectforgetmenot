@@ -1,7 +1,5 @@
+import ambientTrack from "@/assets/media/initial-ambient.mp3.asset.json";
 
-video: "/media/initial.mp4",
-video: "/media/scene-2.mp4",
-video: "/media/scene-3.mp4",
 /**
  * The script of "The Memory Cube", in the order it plays.
  * Edit the text here; the player renders whatever this file says.
@@ -20,6 +18,7 @@ export type VideoScene = {
   /** Plays inside the cube's holographic frame. */
   hologram?: boolean;
   /** Plays the soundtrack from the first clip quietly underneath. */
+  ambient?: boolean;
 };
 
 export type LetterScene = {
@@ -62,8 +61,8 @@ export type QuizScene = {
 
 export type Scene = VideoScene | LetterScene | FlipbookScene | QuizScene;
 
-/** Soundtrack lifted from the first clip; loops under scenes marked `ambient`. */
-
+/** Soundtrack lifted from the first clip; plays under scenes marked `ambient`. */
+export const ambientAudio: string = ambientTrack.url;
 
 export const story: Scene[] = [
   {
@@ -92,6 +91,7 @@ export const story: Scene[] = [
     id: "scene-2",
     description: "...",
     video: "/media/scene-2.mp4",
+    ambient: true,
   },
   {
     kind: "video",
@@ -105,6 +105,7 @@ export const story: Scene[] = [
     id: "scene-3",
     description: "...",
     video: "/media/scene-3.mp4",
+    ambient: true,
   },
   {
     kind: "letter",
