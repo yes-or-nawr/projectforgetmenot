@@ -11,6 +11,7 @@ import { SceneVideo, LastFrame } from "./SceneVideo";
 import { LetterEnvelope } from "./LetterEnvelope";
 import { Quiz } from "./Quiz";
 import type { StepHandle } from "./step-handle";
+import { NameForm } from "./PlayerName";
 
 type Step = { kind: "intro" } | Scene | { kind: "ending" } | { kind: "credits" };
 
@@ -46,10 +47,11 @@ export function StoryPlayer() {
 
   const advance = useCallback(() => setIndex((i) => (i + 1 >= steps.length ? 0 : i + 1)), []);
 
-  const forward = useCallback(() => {
-    if (hasHandle && handleRef.current?.next()) return;
-    advance();
-  }, [hasHandle, advance]);
+const forward = useCallback(() => {
+  if (step.kind === "intro") return; // the name form starts the story
+  if (hasHandle && handleRef.current?.next()) return;
+  advance();
+}, [hasHandle, advance, step.kind]);
 
   const back = useCallback(() => {
     if (hasHandle && handleRef.current?.prev()) return;
@@ -60,6 +62,7 @@ export function StoryPlayer() {
     const onKey = (e: KeyboardEvent) => {
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       const focused = document.activeElement as HTMLElement | null;
+      if (focused?.matches("input, textarea")) return; // let people type their name
       // Let a keyboard-focused button (quiz answers, page controls) work normally.
       if ((e.key === " " || e.key === "Enter") && focused?.matches("[data-no-advance] button, [data-no-advance] a")) return;
       if (FORWARD_KEYS.includes(e.key)) {
@@ -187,7 +190,7 @@ function StepView({
 }) {
   switch (step.kind) {
     case "intro":
-      return <TitleCard />;
+      return <TitleCard onStart={onDone} />;
     case "video":
       return <SceneVideo scene={step} soundOn={soundOn} />;
     case "letter":
@@ -203,7 +206,7 @@ function StepView({
   }
 }
 
-function TitleCard() {
+function TitleCard({ onStart }: { onStart: () => void })  {
   return (
     <div className="flex flex-col items-center text-center">
       <p className="rise font-mono text-[11px] uppercase tracking-[0.35em] text-primary">NASA Space Apps Challenge 2026</p>
@@ -222,12 +225,7 @@ function TitleCard() {
       >
         A story about the machines we left on the Moon, Mars and beyond, and the people who built them.
       </p>
-      <p
-        className="rise hint-pulse mt-12 font-mono text-[11px] uppercase tracking-[0.3em] text-foreground"
-        style={{ animationDelay: "900ms" }}
-      >
-        Press Space · Enter · or click to begin
-      </p>
+      <NameForm onSubmit={onStart} />
       <p className="rise mt-3 text-xs text-muted-foreground" style={{ animationDelay: "1000ms" }}>
         Move your cursor, scroll or drag to look around · press M to mute
       </p>
