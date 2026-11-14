@@ -97,6 +97,7 @@ export const story: Scene[] = [
     kind: "video",
     id: "ingenuity",
     description: "Ingenuity infogram",
+    video: "https://youtu.be/45mOijC1foY"
     hologram: true,
   },
   {
