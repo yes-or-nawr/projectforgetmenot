@@ -74,7 +74,7 @@ export const story: Scene[] = [
   {
     kind: "letter",
     id: "letter-1",
-    dateline: "Delivered by hand",
+    dateline: "",
     salutation: "Dear {name},",
     paragraphs: [
       "You have lucked out!",
@@ -112,7 +112,7 @@ export const story: Scene[] = [
     dateline: "",
     salutation: "Dear {name},",
     paragraphs: [
-      "If you are reading this, you have met me, Ingenuity. I flew over the Martial lands for three years, exceeding all expectations. I was Nasa's beloved Ginny.",
+      "If you are reading this, you have met me, Ingenuity. I flew over the Martial lands for three years, exceeding all expectations. I was NASA's beloved Ginny.",
       "I still wake up today, logging in information to my system. Waiting. But alas! Not many people know of me today.",
       "And it is not just me. So many of my kins are alone in the vast space, lost, injured, or dead. But what hurts the most is being forgotten.",
       "So, {name}, if you would, I want you to remember me. And my kins. And perhaps, one day come and meet me.",
