@@ -155,7 +155,7 @@ function LetterBody({ letter }: { letter: LetterScene }) {
     <article className="letter-frame mx-4 my-6 px-6 pb-24 pt-8 text-ink md:mx-6 md:my-8 md:px-12 md:pt-10">
       <header className="flex flex-col items-center text-center">
         <Crest />
-        <p className="mt-3 font-letter text-sm uppercase tracking-[0.45em] text-ink-muted">The Memory Cube</p>
+        <p className="mt-3 font-letter text-sm uppercase tracking-[0.45em] text-ink-muted">Project ForgetMeNot</p>
         <div aria-hidden className="mt-4 flex w-full items-center gap-3">
           <span className="h-px flex-1 bg-ink/30" />
           <span className="h-1.5 w-1.5 rotate-45 bg-wax" />
