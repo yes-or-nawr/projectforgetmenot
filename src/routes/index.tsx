@@ -1,6 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { StoryPlayer } from "@/components/story/StoryPlayer";
-
+import { PlayerNameProvider } from "@/components/story/PlayerName";
+function Home() {
+  return (
+    <PlayerNameProvider>
+      <StoryPlayer />
+    </PlayerNameProvider>
+  );
+}
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -20,5 +27,5 @@ export const Route = createFileRoute("/")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: StoryPlayer,
+  component: Home,
 });
