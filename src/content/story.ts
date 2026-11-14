@@ -60,7 +60,6 @@ export type QuizScene = {
 export type Scene = VideoScene | LetterScene | FlipbookScene | QuizScene;
 
 /** Soundtrack lifted from the first clip; plays under scenes marked `ambient`. */
-export const ambientAudio: string = ambientTrack.url;
 
 export const story: Scene[] = [
   {
@@ -75,27 +74,25 @@ export const story: Scene[] = [
     dateline: "Delivered by hand",
     salutation: "Dear {name},",
     paragraphs: [
-      "Waiting for you indoors is a small cube. Please handle it gently. It holds the memories of machines that travelled farther from home than any of us ever will.",
-      "They were built by people who stayed up through long nights, tested every bolt twice, and cheered in quiet control rooms when a faint signal arrived from another world.",
-      "Some of those machines landed on the Moon. Some crossed the red dust of Mars. Almost none of them ever came home.",
-      "When you are ready, press the button on the cube and let them tell you their story.",
+      "You have lucked out!",
+      "You now have the opportunity to be part of the next big history.",
+      "Before I tell you any further, you should check out the cube sent as well. Look at it in a darkened room for better viewing experience.",
+      "Best of luck!",
     ],
-    closing: "With respect and hope,",
-    signature: "Ginny",
-    seal: "G",
+    closing: "With hope,",
+    signature: "Traveller",
+    seal: "T",
   },
   {
     kind: "video",
-    id: "scene-2",
+    id: "scene-1",
     description: "...",
-    video: "/media/scene-2.mp4",
-    ambient: true,
+    video: "/media/scene-1.mp4",
   },
   {
     kind: "video",
-    id: "insight",
-    description:
-      "On the hologram: NASA's InSight lander on Mars. Each day, red dust settles on its solar panels, and its power fades until it can no longer talk to Earth.",
+    id: "ingenuity",
+    description: "Ingenuity infogram",
     hologram: true,
   },
   {
@@ -103,18 +100,17 @@ export const story: Scene[] = [
     id: "scene-3",
     description: "...",
     video: "/media/scene-3.mp4",
-    ambient: true,
   },
   {
     kind: "letter",
     id: "letter-2",
-    dateline: "A second page, folded inside the first",
-    salutation: "{name},",
+    dateline: "",
+    salutation: "Dear {name},",
     paragraphs: [
-      "If you are reading this, you have met InSight. It listened to the heartbeat of Mars for four years, until the dust grew too thick for its solar panels to wake it.",
-      "InSight is not alone. On the Moon and on Mars, other machines still stand exactly where they stopped, keeping silent watch over the places they explored.",
-      "The pages that follow hold one machine each, written from NASA's own records. Turn them slowly. Every one of them was somebody's life's work.",
-      "They were abandoned, but they do not have to be forgotten.",
+      "If you are reading this, you have met me, Ingenuity. I flew over the Martial lands for three years, exceeding all expectations. I was Nasa's beloved Ginny.",
+      "I still wake up today, logging in information to my system. Waiting. But alas! Not many people know of me today.",
+      "And it is not just me. So many of my kins are alone in the vast space, lost, injured, or dead. But what hurts the most is being forgotten."
+      "So, {name}, if you would, I want you to remember me. And my kins. And perhaps, one day come and meet me.",
     ],
     closing: "Waiting,",
     signature: "Ginny",
@@ -123,9 +119,9 @@ export const story: Scene[] = [
   {
     kind: "flipbook",
     id: "flipbook",
-    eyebrow: "The archive",
-    title: "Abandoned, but not forgotten",
-    intro: "One page for each machine we left on the Moon and Mars, put together from official NASA sources.",
+    eyebrow: "",
+    title: "The Abandoned Archive",
+    intro: "Remembering Ingenuity and the other abandoned equipments",
   },
   {
     kind: "quiz",
@@ -184,9 +180,11 @@ export const story: Scene[] = [
 
 /** Closing words from the creator, shown after the quiz. */
 export const endingNotes = {
-  title: "A note from the creator",
+  title: "",
   paragraphs: [
-    "Placeholder: replace this with your own ending notes. Say why you chose this story, what the abandoned machines mean to you, and who you made it for.",
+    "Spirit, Opportunity and many other explorers and the people behind them have given their all in the quest of knowing the space.",
+    "Ingenuity is waiting for the next rover or explorer to take over. The baton must be passed.",
+    "Wouldn't you like to be part of the journey?"
   ],
-  signature: "— Team name",
+  signature: "",
 };
