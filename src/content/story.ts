@@ -71,8 +71,8 @@ export const story: Scene[] = [
   {
     kind: "video",
     id: "initial",
-    description: "A little girl walks to the red mailbox outside her house and finds a letter inside.",
-    video: initialClip.url,
+    description: "...",
+    video: "/initial.mp4",
   },
   {
     kind: "letter",
@@ -92,9 +92,8 @@ export const story: Scene[] = [
   {
     kind: "video",
     id: "scene-2",
-    description: "The girl carries the letter inside to her bedroom, finds the glowing cube and presses its button. A hologram opens in the air.",
-    video: scene2Clip.url,
-    ambient: true,
+    description: "...",
+    video: "/scene 2.mp4",
   },
   {
     kind: "video",
@@ -106,10 +105,9 @@ export const story: Scene[] = [
   },
   {
     kind: "video",
-    id: "scene-3",
-    description: "The girl sets the cube on her nightstand, sits on her bed and reads the letter again.",
-    video: scene3Clip.url,
-    ambient: true,
+    id: "scene-2",
+    description: "...",
+    video: "/scene 2.mp4",
   },
   {
     kind: "letter",
