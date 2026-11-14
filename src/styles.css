@@ -340,6 +340,7 @@
 }
 .env-back { background: linear-gradient(160deg, var(--parchment-deep), oklch(0.7 0.06 70)); }
 .env-pocket {
+  z-index: 2;
   background: linear-gradient(160deg, var(--parchment), var(--parchment-deep));
   clip-path: polygon(0 0, 50% 55%, 100% 0, 100% 100%, 0 100%);
   box-shadow: 0 25px 60px oklch(0 0 0 / 55%);
@@ -351,7 +352,7 @@
   z-index: 3;
 }
 .env-seal { z-index: 4; animation: env-seal 0.6s 0.2s ease-in both; }
-.env-letter { animation: env-letter 0.9s 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.env-letter { z-index: 1; animation: env-letter 0.9s 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }.env-letter { animation: env-letter 0.9s 1.3s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 .envelope-stage { animation: rise 0.8s ease-out both; }
 @keyframes env-flap { to { transform: rotateX(180deg); z-index: 0; } }
 @keyframes env-seal { to { opacity: 0; transform: translate(-50%, -50%) scale(1.3); } }
