@@ -1,6 +1,6 @@
 video: "/media/initial.mp4",
-video: "/media/scene-2.mp4",
-video: "/media/scene-3.mp4",
+video: "/media/scene 2.mp4",
+video: "/media/scene 3.mp4",
 /**
  * The script of "The Memory Cube", in the order it plays.
  * Edit the text here; the player renders whatever this file says.
