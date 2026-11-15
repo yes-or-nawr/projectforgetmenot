@@ -413,10 +413,10 @@ export const artifacts: Artifact[] = [
     plannedLife: "Pioneer 10: 21 months",
     actualLife: "Pioneer 10: more than 30 years",
     image: {
-      src: img("ARC-1972-AC72-1338"),
-      alt: "The Pioneer plaque: a man and a woman drawn beside the spacecraft, with a map showing where Earth is",
+      src: img("ARC-1969-AC72-1351"),
+      alt: "Artist illustration of Pioneer 10 flying past Jupiter",
       credit: "NASA Ames",
-      nasaId: "ARC-1972-AC72-1338",
+      nasaId: "ARC-1969-AC72-1351",
     },
     hook: "The first messengers sent toward the stars.",
     builtTo:
@@ -431,7 +431,7 @@ export const artifacts: Artifact[] = [
     sources: [
       { label: "NASA Science: Pioneer 10", url: "https://science.nasa.gov/mission/pioneer-10/" },
       { label: "NASA Science: Pioneer 11", url: "https://science.nasa.gov/mission/pioneer-11/" },
-      details("ARC-1972-AC72-1338"),
+      details("ARC-1969-AC72-1351"),
     ],
   },
   {

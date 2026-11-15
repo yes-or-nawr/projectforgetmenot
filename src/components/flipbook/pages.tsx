@@ -170,10 +170,6 @@ export function EndLeft() {
           Behind every machine on these pages are thousands of people who designed, built, tested, and
           drove it.
         </p>
-        <p className="mt-5 text-sm leading-relaxed text-ink-muted">
-          They stayed up through Martian nights and sent wake-up songs across space. When the last signal
-          faded, they said goodbye.
-        </p>
       </div>
     </PageShell>
   );
@@ -188,7 +184,6 @@ export function EndRight() {
           Facts and photos come from official NASA sources: science.nasa.gov, nasa.gov, and the NASA Image and
           Video Library. Each page links to where its facts came from.
         </p>
-        <p className="mt-4 font-display text-2xl italic text-rust">More pages are coming.</p>
       </div>
     </PageShell>
   );

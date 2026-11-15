@@ -304,9 +304,10 @@ function CreditsCard() {
         Abandoned, but not forgotten
       </h2>
       <p className="rise mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground" style={{ animationDelay: "300ms" }}>
-        Made for the 2026 NASA Space Apps Challenge. Archive facts come from official NASA mission pages, the photos come
-        from the NASA Image and Video Library, and the Earth on the title screen is built from NASA Blue Marble imagery.
-        This is not an official NASA website.
+        Project ForgetMeNot, made for the 2026 NASA Space Apps Challenge "Abandoned but not Forgotten". Archive facts
+        come from the official NASA resources listed for the challenge (science.nasa.gov, nasa.gov, NSSDCA and JPL), photos
+        from the NASA Image and Video Library, and the Earth on the title screen from NASA Blue Marble imagery. Click a
+        machine below to open its NASA source. This is not an official NASA website.
       </p>
       <ul
         data-no-advance
