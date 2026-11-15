@@ -199,7 +199,7 @@ export function StoryPlayer() {
           rel="noopener noreferrer"
           aria-label="View Project ForgetMeNot on GitHub"
           onClick={(e) => e.stopPropagation()}
-          className="rise absolute right-4 top-4 z-30 flex cursor-pointer items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-2 font-mono text-[11px] uppercase tracking-[0.25em] text-foreground/85 backdrop-blur-md transition hover:border-primary hover:text-primary hover:shadow-[0_0_18px_var(--color-primary)] md:right-6 md:top-6"
+          className="rise hint-pulse absolute right-4 top-4 z-30 flex cursor-pointer items-center gap-2 rounded-full border border-[var(--color-hologram)]/70 bg-background/80 px-3.5 py-2 font-mono text-[11px] uppercase tracking-[0.25em] text-[var(--color-hologram)] shadow-[0_0_16px_rgba(34,211,238,0.3)] backdrop-blur-md transition-all hover:scale-105 md:right-6 md:top-6"
           style={{ animationDelay: "800ms" }}
         >
           <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4 fill-current">
