@@ -17,3 +17,6 @@ Nano Banana
 
 
 
+
+## AI Disclosure
+Videos and audio in this project are AI-generated (Kling AI, Nano Banana). Code and data were written with AI assistance (Lovable). All archive facts come from official NASA sources.
