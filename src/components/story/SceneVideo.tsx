@@ -19,7 +19,20 @@ export function SceneVideo({ scene, soundOn }: { scene: VideoScene; soundOn: boo
   ) : (
     <ScenePlaceholder scene={scene} />
   );
-  return <div className="absolute inset-0 bg-background">{scene.hologram ? <HoloStage>{media}</HoloStage> : media}</div>;
+  return (
+    <div className="absolute inset-0 bg-background">
+      {scene.hologram ? <HoloStage>{media}</HoloStage> : media}
+      {!ytId && scene.video && <AiWatermark />}
+    </div>
+  );
+}
+
+function AiWatermark() {
+  return (
+    <span className="pointer-events-none absolute bottom-4 right-4 select-none font-mono text-[10px] uppercase tracking-[0.25em] text-foreground/60 [text-shadow:0_1px_3px_hsl(0_0%_0%/0.8)]">
+      AI-Generated artwork
+    </span>
+  );
 }
 
 /** The scene's final frame, frozen, so a letter can appear over it. */
